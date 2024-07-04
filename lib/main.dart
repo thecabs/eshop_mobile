@@ -1,12 +1,10 @@
-import 'package:eshop/screens/init_screen.dart';
-import 'package:eshop/screens/admin/auth/sign_in/sign_in_screen.dart';
-import 'package:eshop/screens/admin/auth/sign_up/sign_up_screen.dart';
 import 'package:eshop/screens/panier/cart_provider.dart';
 import 'package:eshop/size_config.dart';
 import 'package:flutter/material.dart';
 import 'package:eshop/loading.dart';
 import 'package:eshop/routes.dart';
 import 'package:eshop/theme.dart';
+import 'package:intl/date_symbol_data_local.dart';
 import 'package:provider/provider.dart';
 
 // void main() {
@@ -32,6 +30,8 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     SizeConfig().init(context);
+    WidgetsFlutterBinding.ensureInitialized();
+    initializeDateFormatting('fr_FR', null);
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Bambino-Shop',

@@ -26,12 +26,17 @@ class _LoadingScreenState extends State<LoadingScreen> {
       await prefs.setBool('isFirstRun', false);
       // Navigate to your SplashScreen or IntroScreen
       Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (context) => const SplashScreen()));
+          MaterialPageRoute(builder: (context) => SplashScreen()));
+      //MaterialPageRoute(builder: (context) => const SplashScreen()));
     } else {
       Navigator.of(context).pushAndRemoveUntil(
-        MaterialPageRoute(builder: (context) => const InitScreen()),
+        MaterialPageRoute(builder: (context) => InitScreen()),
         (route) => false,
       );
+
+      // MaterialPageRoute(builder: (context) => const InitScreen()),
+      // (route) => false,
+      //);
     }
   }
 

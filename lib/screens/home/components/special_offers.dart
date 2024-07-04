@@ -1,6 +1,5 @@
-import 'package:eshop/screens/home/components/subcomponentcat/categories.dart';
-import 'package:eshop/screens/products/products_screen.dart';
-import 'package:eshop/services/categories_service.dart';
+import 'package:eshop/screens/products/productBycategory/categories.dart';
+import 'package:eshop/services/user/categories_service.dart';
 //import 'package:eshop/test/categories.dart';
 import 'package:flutter/material.dart';
 

@@ -1,16 +1,13 @@
+import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:eshop/constants.dart';
 import 'package:eshop/helper/keyboard.dart';
 import 'package:eshop/models/api_response.dart';
-import 'package:eshop/models/User.dart';
+import 'package:eshop/models/user.dart';
+import 'package:eshop/screens/admin/adboard/dash.dart';
 import 'package:eshop/screens/components/custom_surfix_icon.dart';
 import 'package:eshop/screens/components/form_error.dart';
-import 'package:eshop/screens/admin/auth/sign_in/sign_in_screen.dart';
-import 'package:eshop/screens/admin/auth/sign_up/components/sign_up_form.dart';
-import 'package:eshop/screens/admin/auth/sign_up/sign_up_screen.dart';
-import 'package:eshop/services/user_service.dart';
-
-import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:eshop/services/user/user_service.dart';
 
 class SignForm extends StatefulWidget {
   const SignForm({super.key});
@@ -26,7 +23,6 @@ class _SignFormState extends State<SignForm> {
 
   TextEditingController txtEmailController = TextEditingController();
   TextEditingController txtPasswordController = TextEditingController();
-  bool? remember = false;
   final List<String?> errors = [];
 
   void addError({String? error}) {
@@ -74,12 +70,12 @@ class _SignFormState extends State<SignForm> {
 
   void _saveAndRedirectToHome(User user) async {
     SharedPreferences pref = await SharedPreferences.getInstance();
-
     await pref.setString('token', user.token ?? '');
     await pref.setInt('userId', user.id ?? 0);
+    await pref.setString('nomGest', user.nomGest ?? '');
+
     Navigator.of(context).pushAndRemoveUntil(
-        MaterialPageRoute(builder: (context) => const SignUpScreen()),
-        (route) => false);
+        MaterialPageRoute(builder: (context) => Dashboard()), (route) => false);
   }
 
   @override
@@ -107,8 +103,6 @@ class _SignFormState extends State<SignForm> {
             decoration: const InputDecoration(
               labelText: "Login",
               hintText: "Enter your login",
-              // If  you are using latest version of flutter then lable text and hint text shown like this
-              // if you r using flutter less then 1.20.* then maybe this is not working properly
               floatingLabelBehavior: FloatingLabelBehavior.always,
               suffixIcon: CustomSurffixIcon(svgIcon: "assets/icons/User.svg"),
             ),
@@ -139,46 +133,19 @@ class _SignFormState extends State<SignForm> {
             decoration: const InputDecoration(
               labelText: "Password",
               hintText: "Enter your password",
-              // If  you are using latest version of flutter then lable text and hint text shown like this
-              // if you r using flutter less then 1.20.* then maybe this is not working properly
               floatingLabelBehavior: FloatingLabelBehavior.always,
               suffixIcon: CustomSurffixIcon(svgIcon: "assets/icons/Lock.svg"),
             ),
           ),
           const SizedBox(height: 20),
-          Row(
-            children: [
-              Checkbox(
-                value: remember,
-                activeColor: kPrimaryColor,
-                onChanged: (value) {
-                  setState(() {
-                    remember = value;
-                  });
-                },
-              ),
-              const Text("Remember me"),
-              const Spacer(),
-              GestureDetector(
-                onTap: () {},
-                child: const Text(
-                  "Forgot Password",
-                  style: TextStyle(decoration: TextDecoration.underline),
-                ),
-              )
-            ],
-          ),
           FormError(errors: errors),
           const SizedBox(height: 16),
           loading
-              ? const Center(
-                  child: CircularProgressIndicator(),
-                )
+              ? const Center(child: CircularProgressIndicator())
               : ElevatedButton(
                   onPressed: () {
                     if (_formKey.currentState!.validate()) {
                       _formKey.currentState!.save();
-                      // if all are valid then go to success screen
                       KeyboardUtil.hideKeyboard(context);
 
                       setState(() {

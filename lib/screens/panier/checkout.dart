@@ -1,9 +1,12 @@
 import 'package:eshop/helper/keyboard.dart';
-import 'package:eshop/models/Produit.dart';
+import 'package:eshop/models/produit.dart';
 import 'package:eshop/screens/components/custom_surfix_icon.dart';
-import 'package:eshop/services/fetchville.dart';
-import 'package:eshop/services/order_service.dart';
+import 'package:eshop/screens/init_screen.dart';
+import 'package:eshop/screens/panier/cart_provider.dart';
+import 'package:eshop/services/user/fetchville.dart';
+import 'package:eshop/services/user/order_service.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class CheckoutScreen extends StatefulWidget {
   static const String routeName = '/checkouto';
@@ -22,8 +25,6 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
   String? mobile;
   String? addresse;
   String? commentaire;
-  double? avance;
-  double remise = 0;
   Ville? selectedVille;
   List<Ville> villes = [];
   bool isLoading = true;
@@ -45,21 +46,61 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
     });
   }
 
-  void _submitOrder(BuildContext context) {
+  void _submitOrder(BuildContext context) async {
     if (_formKey.currentState?.validate() ?? false) {
       _formKey.currentState?.save();
-      // Assuming submitOrder is a function that handles order submission
-      submitOrder(
-        products: widget.products,
-        nomClient: nomClient!,
-        mobile: mobile!,
-        addresse: addresse,
-        commentaire: commentaire,
-        avance: avance,
-        remise: remise,
-        villeId: selectedVille!.id,
-        context: context,
-      );
+      setState(() {
+        loading = true;
+      });
+
+      try {
+        final success = await submitOrder(
+          products: widget.products,
+          nomClient: nomClient!,
+          mobile: mobile!,
+          addresse: addresse,
+          commentaire: commentaire,
+          villeId: selectedVille!.id,
+          context: context,
+        );
+
+        if (success) {
+          setState(() {
+            loading = false;
+            // Clear the form fields
+            nomClient = null;
+            mobile = null;
+            addresse = null;
+            commentaire = null;
+            selectedVille = null;
+          });
+
+          Provider.of<CartProvider>(context, listen: false).clearCart();
+
+          // Navigate to ProductPage
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Commande Passée avec succès')),
+          );
+          Navigator.pushReplacementNamed(context, InitScreen.routeName);
+        } else {
+          setState(() {
+            loading = false;
+          });
+
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+                content: Text('Erreur lors de la passation de la commande')),
+          );
+        }
+      } catch (error) {
+        setState(() {
+          loading = false;
+        });
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Erreur lors de la passation de la commande')),
+        );
+      }
     }
   }
 
@@ -88,25 +129,56 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                           ),
                           SizedBox(height: 8),
                           Container(
-                            height: 200, // Fixe la hauteur du ListView
+                            height: 200,
                             child: ListView.builder(
+                              scrollDirection: Axis.horizontal,
                               itemCount: widget.products.length,
                               itemBuilder: (context, index) {
                                 final product = widget.products[index];
-                                return ListTile(
-                                  title: Text(product.nomPro),
-                                  subtitle: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                          'Prix: ${product.prixAsDouble} FCFA'),
-                                      Text('Quantité: ${product.quantity}'),
-                                      Text(
-                                          'Taille: ${product.taille ?? "Non spécifiée"}'),
-                                      Text(
-                                          'Couleur: ${product.couleur ?? "Non spécifiée"}'),
-                                    ],
+                                return Card(
+                                  child: Container(
+                                    width: 150,
+                                    padding: EdgeInsets.all(8),
+                                    child: Column(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.center,
+                                      children: [
+                                        product.photos != null &&
+                                                product.photos!.isNotEmpty
+                                            ? Image.network(
+                                                product.photos![0],
+                                                height: 80,
+                                                width: 80,
+                                                fit: BoxFit.cover,
+                                              )
+                                            : Text('Pas d\'image'),
+                                        SizedBox(height: 8),
+                                        Text(
+                                          product.nomPro,
+                                          style: TextStyle(
+                                              fontWeight: FontWeight.bold),
+                                          textAlign: TextAlign.center,
+                                        ),
+                                        Text(
+                                          'Prix: ${product.prixAsDouble} FCFA',
+                                          textAlign: TextAlign.center,
+                                        ),
+                                        Text(
+                                          'Quantité: ${product.quantity}',
+                                          textAlign: TextAlign.center,
+                                        ),
+                                        Text(
+                                          'Taille: ${product.taille ?? "Non spécifiée"}',
+                                          textAlign: TextAlign.center,
+                                        ),
+                                        Text(
+                                          'Couleur: ${product.couleur ?? "Non spécifiée"}',
+                                          textAlign: TextAlign.center,
+                                        ),
+                                      ],
+                                    ),
                                   ),
                                 );
                               },
@@ -183,27 +255,6 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                             onSaved: (value) => commentaire = value,
                           ),
                           SizedBox(height: 15),
-                          TextFormField(
-                            decoration: InputDecoration(labelText: 'Avance'),
-                            keyboardType: TextInputType.number,
-                            onSaved: (value) =>
-                                avance = double.tryParse(value ?? '0'),
-                          ),
-                          SizedBox(height: 15),
-                          TextFormField(
-                            decoration: InputDecoration(labelText: 'Remise'),
-                            keyboardType: TextInputType.number,
-                            initialValue: remise.toString(),
-                            validator: (value) {
-                              if (value == null ||
-                                  double.tryParse(value) == null) {
-                                return 'Veuillez entrer une remise valide';
-                              }
-                              return null;
-                            },
-                            onSaved: (value) => remise = double.parse(value!),
-                          ),
-                          SizedBox(height: 15),
                           DropdownButtonFormField<Ville>(
                             decoration: InputDecoration(labelText: 'Ville'),
                             items: villes.map((ville) {
@@ -238,10 +289,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                                       // if all are valid then go to success screen
                                       KeyboardUtil.hideKeyboard(context);
 
-                                      setState(() {
-                                        loading = true;
-                                        _submitOrder(context);
-                                      });
+                                      _submitOrder(context);
                                     }
                                   },
                                   child: const Text("Valider la Commande"),

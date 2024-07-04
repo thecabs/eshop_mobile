@@ -1,5 +1,5 @@
 import 'package:eshop/constants.dart';
-import 'package:eshop/models/Produit.dart';
+import 'package:eshop/models/produit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
@@ -15,6 +15,17 @@ class ProductCard extends StatelessWidget {
   final double width, aspectRetio;
   final Product product;
   final VoidCallback onPress;
+
+  String formatProductCode(String code) {
+    // Séparez le code en blocs de trois caractères
+    List<String> parts = [];
+    for (int i = 0; i < code.length; i += 3) {
+      parts.add(code.substring(i, i + 3 > code.length ? code.length : i + 3));
+    }
+
+    // Joindre les parties avec '-'
+    return parts.join('-');
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -59,11 +70,33 @@ class ProductCard extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 8),
-            Text(
-              product.nomPro,
-              style: Theme.of(context).textTheme.bodyMedium,
-              maxLines: 2,
+            Center(
+              child: Text(
+                'CodePro: ${formatProductCode(product.codePro.toString())}',
+                style: Theme.of(context).textTheme.bodyMedium,
+                maxLines: 1,
+              ),
             ),
+            Center(
+              child: Text(
+                product.nomPro,
+                style: Theme.of(context).textTheme.bodyMedium,
+                maxLines: 2,
+              ),
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  "${product.prix}  FCFA ",
+                  style: const TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                    color: kPrimaryColor,
+                  ),
+                ),
+              ],
+            )
             // Row(
             //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
             //   children: [

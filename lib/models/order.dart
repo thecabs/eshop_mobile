@@ -1,4 +1,4 @@
-import 'package:eshop/models/Produit.dart';
+import 'package:eshop/models/produit.dart';
 
 class Order {
   final String customerName;

@@ -1,54 +1,43 @@
-import 'package:eshop/models/Produit.dart';
-import 'package:eshop/screens/home/components/subcomponentpro/produit_page.dart';
-import 'package:eshop/services/fetchproduits.dart';
 import 'package:flutter/material.dart';
-
-import '../../../constants.dart';
+import 'package:eshop/screens/products/productList/produit_page.dart';
+import 'package:eshop/constants.dart';
 
 const searchOutlineInputBorder = OutlineInputBorder(
   borderRadius: BorderRadius.all(Radius.circular(12)),
   borderSide: BorderSide.none,
 );
 
-class SearchField1 extends StatefulWidget {
-  const SearchField1({super.key});
+class SearchField extends StatefulWidget {
+  const SearchField({Key? key}) : super(key: key);
 
   @override
-  State<SearchField1> createState() => _SearchField1State();
+  State<SearchField> createState() => _SearchFieldState();
 }
 
-class _SearchField1State extends State<SearchField1> {
-  late Future<List<Product>> _futureProducts;
-
+class _SearchFieldState extends State<SearchField> {
   TextEditingController _searchController = TextEditingController();
   TextEditingController _minPriceController = TextEditingController();
   TextEditingController _maxPriceController = TextEditingController();
-  void initState() {
-    super.initState();
-    _fetchProducts();
-  }
 
-  void _fetchProducts() {
-    setState(() {
-      _futureProducts = fetchProducts(
-        // page: _currentPage,
-        search: _searchController.text,
-        prix1: double.tryParse(_minPriceController.text),
-        prix2: double.tryParse(_maxPriceController.text),
-      );
-    });
+  void _searchProducts() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => ProductsPage(
+          searchQuery: _searchController.text,
+          minPrice: double.tryParse(_minPriceController.text),
+          maxPrice: double.tryParse(_maxPriceController.text),
+        ),
+      ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     return Form(
       child: TextFormField(
-        onTap: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => ProductsPage()),
-          );
-        },
+        controller: _searchController,
+        onFieldSubmitted: (_) => _searchProducts(),
         decoration: InputDecoration(
           filled: true,
           fillColor: kSecondaryColor.withOpacity(0.1),

@@ -1,9 +1,7 @@
 import 'package:eshop/constants.dart';
-//import 'package:eshop/screens/body/body.dart';
-import 'package:eshop/screens/favorite/favorite_screen.dart';
-import 'package:eshop/screens/home/components/subcomponentpro/produit_page.dart';
+import 'package:eshop/screens/products/productList/produit_page.dart';
 import 'package:eshop/screens/home/home_screen.dart';
-import 'package:eshop/test/body.dart';
+import 'package:eshop/screens/panier/orderhistory.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
@@ -30,7 +28,7 @@ class _InitScreenState extends State<InitScreen> {
   final pages = [
     const HomeScreen(),
     ProductsPage(),
-    const FavoriteScreen(),
+    const OrderHistoryScreen(),
   ];
 
   @override
@@ -76,42 +74,25 @@ class _InitScreenState extends State<InitScreen> {
                 BlendMode.srcIn,
               ),
             ),
-            label: "Fav",
+            label: "Products",
           ),
           BottomNavigationBarItem(
             icon: SvgPicture.asset(
-              "assets/icons/Heart Icon.svg",
+              "assets/icons/Bill Icon.svg",
               colorFilter: const ColorFilter.mode(
                 inActiveIconColor,
                 BlendMode.srcIn,
               ),
             ),
             activeIcon: SvgPicture.asset(
-              "assets/icons/Chat bubble Icon.svg",
+              "assets/icons/Bill Icon.svg",
               colorFilter: const ColorFilter.mode(
                 kPrimaryColor,
                 BlendMode.srcIn,
               ),
             ),
-            label: "Chat",
+            label: "Orders",
           ),
-          // BottomNavigationBarItem(
-          //   icon: SvgPicture.asset(
-          //     "assets/icons/User Icon.svg",
-          //     colorFilter: const ColorFilter.mode(
-          //       inActiveIconColor,
-          //       BlendMode.srcIn,
-          //     ),
-          //   ),
-          //   activeIcon: SvgPicture.asset(
-          //     "assets/icons/User Icon.svg",
-          //     colorFilter: const ColorFilter.mode(
-          //       kPrimaryColor,
-          //       BlendMode.srcIn,
-          //     ),
-          //   ),
-          //   label: "Fav",
-          // ),
         ],
       ),
     );

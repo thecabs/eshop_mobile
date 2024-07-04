@@ -1,4 +1,5 @@
-import 'package:eshop/models/Produit.dart';
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:eshop/models/produit.dart';
 import 'package:eshop/screens/panier/cart_provider.dart';
 import 'package:eshop/screens/panier/checkout.dart';
 import 'package:flutter/material.dart';
@@ -26,7 +27,7 @@ class _CartScreenoState extends State<CartScreeno> {
               style: TextStyle(color: Colors.black),
             ),
             Text(
-              "${cartProvider.cartItems.length} items",
+              "${cartProvider.cartItems.length} Produit(s)",
               style: Theme.of(context).textTheme.bodySmall,
             ),
           ],
@@ -87,75 +88,125 @@ class CartItemTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ListTile(
-      leading: Container(
-        width: 50,
-        height: 50,
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      child: Container(
+        padding: const EdgeInsets.all(8.0),
         decoration: BoxDecoration(
-          border: Border.all(color: Colors.grey),
           borderRadius: BorderRadius.circular(8),
+          color: Colors.white,
+          boxShadow: [
+            BoxShadow(
+              color: Colors.grey.withOpacity(0.2),
+              spreadRadius: 2,
+              blurRadius: 5,
+              offset: Offset(0, 3), // changes position of shadow
+            ),
+          ],
         ),
-        child: product.photos != null && product.photos!.isNotEmpty
-            ? Image.network(
-                product.photos![0],
-                fit: BoxFit.cover,
-                errorBuilder: (context, error, stackTrace) =>
-                    Icon(Icons.image_not_supported),
-                loadingBuilder: (context, child, loadingProgress) {
-                  if (loadingProgress == null) return child;
-                  return Center(
-                    child: CircularProgressIndicator(
-                      value: loadingProgress.expectedTotalBytes != null
-                          ? loadingProgress.cumulativeBytesLoaded /
-                              (loadingProgress.expectedTotalBytes ?? 1)
-                          : null,
+        child: Row(
+          children: [
+            Container(
+              width: 80,
+              height: 80,
+              decoration: BoxDecoration(
+                border: Border.all(color: Colors.grey),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: product.photos != null && product.photos!.isNotEmpty
+                  ? CachedNetworkImage(
+                      imageUrl: product.photos![0],
+                      fit: BoxFit.cover,
+                      placeholder: (context, url) => Center(
+                        child: CircularProgressIndicator(),
+                      ),
+                      errorWidget: (context, url, error) =>
+                          Icon(Icons.image_not_supported),
+                    )
+                  : Icon(Icons.image_not_supported),
+            ),
+            SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    product.nomPro,
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
                     ),
-                  );
-                },
-              )
-            : Icon(Icons.image_not_supported),
-      ),
-      title: Text(product.nomPro),
-      subtitle: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text('${product.prixAsDouble} FCFA'),
-          Text('Quantité : ${product.quantity}'),
-          Text('Taille : ${product.taille ?? "Non spécifiée"}'),
-          Text('Couleur : ${product.couleur ?? "Non spécifiée"}'),
-        ],
-      ),
-      trailing: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          IconButton(
-            icon: Icon(Icons.remove),
-            onPressed: () {
-              cartProvider.decrementQuantity(product);
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text("Quantité diminuée")),
-              );
-            },
-          ),
-          IconButton(
-            icon: Icon(Icons.add),
-            onPressed: () {
-              cartProvider.incrementQuantity(product);
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text("Quantité augmentée")),
-              );
-            },
-          ),
-          IconButton(
-            icon: Icon(Icons.delete),
-            onPressed: () {
-              cartProvider.removeFromCart(product);
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text("Produit supprimé")),
-              );
-            },
-          ),
-        ],
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  SizedBox(height: 8),
+                  Text(
+                    '${product.prixAsDouble} FCFA',
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: Colors.grey[700],
+                    ),
+                  ),
+                  SizedBox(height: 8),
+                  Text(
+                    'Quantité: ${product.quantity}',
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: Colors.grey[700],
+                    ),
+                  ),
+                  SizedBox(height: 8),
+                  Text(
+                    'Taille: ${product.taille ?? "Non spécifiée"}',
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: Colors.grey[700],
+                    ),
+                  ),
+                  SizedBox(height: 8),
+                  Text(
+                    'Couleur: ${product.couleur ?? "Non spécifiée"}',
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: Colors.grey[700],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Column(
+              children: [
+                IconButton(
+                  icon: Icon(Icons.remove),
+                  onPressed: () {
+                    cartProvider.decrementQuantity(product);
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text("Quantité diminuée")),
+                    );
+                  },
+                ),
+                IconButton(
+                  icon: Icon(Icons.add),
+                  onPressed: () {
+                    cartProvider.incrementQuantity(product);
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text("Quantité augmentée")),
+                    );
+                  },
+                ),
+                IconButton(
+                  icon: Icon(Icons.delete),
+                  onPressed: () {
+                    cartProvider.removeFromCart(product);
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text("Produit supprimé")),
+                    );
+                  },
+                ),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }

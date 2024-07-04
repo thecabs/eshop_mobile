@@ -1,3 +1,4 @@
+import 'package:eshop/screens/admin/auth/sign_in/sign_in_screen.dart';
 import 'package:eshop/screens/panier/cart_provider.dart';
 import 'package:eshop/screens/panier/cart_screen.dart';
 import 'package:flutter/material.dart';
@@ -20,7 +21,7 @@ class HomeHeader extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          const Expanded(child: SearchField1()),
+          const Expanded(child: SearchField()),
           const SizedBox(width: 16),
           IconBtnWithCounter(
             svgSrc: "assets/icons/Cart Icon.svg",
@@ -29,9 +30,9 @@ class HomeHeader extends StatelessWidget {
           ),
           const SizedBox(width: 8),
           IconBtnWithCounter(
-            svgSrc: "assets/icons/Bell.svg",
-            numOfitem: 0,
-            press: () {},
+            svgSrc: "assets/icons/User.svg",
+            // numOfitem: 0,
+            press: () => Navigator.pushNamed(context, SignInScreen.routeName),
           ),
         ],
       ),

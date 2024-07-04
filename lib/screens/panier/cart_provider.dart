@@ -1,4 +1,4 @@
-import 'package:eshop/models/Produit.dart';
+import 'package:eshop/models/produit.dart';
 import 'package:flutter/material.dart';
 
 class CartProvider extends ChangeNotifier {

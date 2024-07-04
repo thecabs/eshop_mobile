@@ -5,6 +5,8 @@ class User {
   String? login;
   bool? actif;
   String? mobile;
+  DateTime? createdAt;
+  DateTime? updatedAt;
   String? token;
 
   User({
@@ -14,19 +16,36 @@ class User {
     this.login,
     this.actif,
     this.mobile,
+    this.createdAt,
+    this.updatedAt,
     this.token,
   });
 
-  // function to convert json data to user model
-
   factory User.fromJson(Map<String, dynamic> json) {
     return User(
-        id: json['user']['id'],
-        nomGest: json['user']['nomGest'],
-        typeGest: int.parse(json['user']['typeGest']),
-        login: json['user']['login'],
-        actif: json['user']['actif'],
-        mobile: json['user']['mobile'],
-        token: json['token']);
+      id: json['id'],
+      nomGest: json['nomGest'],
+      typeGest: json['typeGest'],
+      login: json['login'],
+      actif: json['actif'] == 1, // Convert int to bool
+      mobile: json['mobile'],
+      createdAt: DateTime.parse(json['created_at']),
+      updatedAt: DateTime.parse(json['updated_at']),
+      token: json['token'],
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'nomGest': nomGest,
+      'typeGest': typeGest,
+      'login': login,
+      'actif': actif! ? 1 : 0, // Convert bool to int
+      'mobile': mobile,
+      'created_at': createdAt?.toIso8601String(),
+      'updated_at': updatedAt?.toIso8601String(),
+      'token': token,
+    };
   }
 }

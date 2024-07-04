@@ -5,7 +5,7 @@ const kPrimaryLightColor = Color(0xFFFFECDF);
 const kPrimaryGradientColor = LinearGradient(
   begin: Alignment.topLeft,
   end: Alignment.bottomRight,
-  colors: [Color(0xFFFFA53E), Color(0xFFFF7643)],
+  colors: [Color(0xFFFFA53E), Color.fromRGBO(255, 118, 67, 1)],
 );
 const kSecondaryColor = Colors.blue;
 const kTextColor = Colors.black;
@@ -47,11 +47,24 @@ OutlineInputBorder outlineInputBorder() {
   );
 }
 
-const baseURL = 'http://192.168.1.145:8000/api';
+const base = '192.168.1.145:8000';
+
+//const baseURL = 'http://192.168.1.145:8000/api';
+const baseURL = 'http://' + base + '/api';
 const createGestURL = baseURL + '/createGest';
 const loginGestURL = baseURL + '/loginGest';
 const logoutGestURL = baseURL + '/logoutGest';
 const userdetailURL = baseURL + '/user';
+
+const createCommandeURL = baseURL + '/createCommande';
+const listVilleURL = baseURL + '/listVille';
+
+const produitByCategorieURL = 'http://' + base + '/api/produitByCategories/';
+const produitListUrl = '/api/produitsList';
+
+const getQuantityURL = 'http://' + base + '/api/getquantity/';
+const getCategorienameURL = 'http://' + base + '/api/categories/';
+const listCategorieURL = baseURL + '/listCategories';
 
 // ----- Errors -----
 const serverError = 'Server Error';
@@ -60,3 +73,4 @@ const unknownError = 'Unknown Error';
 
 const unauthorized = 'Unauthorized';
 const somethingWentWrong = 'Something went wrong, try again!';
+const defaultPadding = 16.0;

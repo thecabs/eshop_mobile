@@ -1,18 +1,19 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 
 import '../../../constants.dart';
-import '../../../models/Product.dart';
+import '../../../models/produit.dart';
 
 class ProductDescription extends StatelessWidget {
   const ProductDescription({
     Key? key,
     required this.product,
     this.pressOnSeeMore,
+    required this.isDescriptionExpanded,
   }) : super(key: key);
 
   final Product product;
   final GestureTapCallback? pressOnSeeMore;
+  final bool isDescriptionExpanded;
 
   @override
   Widget build(BuildContext context) {
@@ -22,33 +23,8 @@ class ProductDescription extends StatelessWidget {
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20),
           child: Text(
-            product.title,
+            product.nomPro,
             style: Theme.of(context).textTheme.titleLarge,
-          ),
-        ),
-        Align(
-          alignment: Alignment.centerRight,
-          child: Container(
-            padding: const EdgeInsets.all(16),
-            width: 48,
-            decoration: BoxDecoration(
-              color: product.isFavourite
-                  ? const Color(0xFFFFE6E6)
-                  : const Color(0xFFF5F6F9),
-              borderRadius: const BorderRadius.only(
-                topLeft: Radius.circular(20),
-                bottomLeft: Radius.circular(20),
-              ),
-            ),
-            child: SvgPicture.asset(
-              "assets/icons/Heart Icon_2.svg",
-              colorFilter: ColorFilter.mode(
-                  product.isFavourite
-                      ? const Color(0xFFFF4848)
-                      : const Color(0xFFDBDEE4),
-                  BlendMode.srcIn),
-              height: 16,
-            ),
           ),
         ),
         Padding(
@@ -58,7 +34,7 @@ class ProductDescription extends StatelessWidget {
           ),
           child: Text(
             product.description,
-            maxLines: 3,
+            maxLines: isDescriptionExpanded ? null : 2,
           ),
         ),
         Padding(
@@ -67,24 +43,28 @@ class ProductDescription extends StatelessWidget {
             vertical: 12,
           ),
           child: GestureDetector(
-            onTap: () {},
-            child: const Row(
+            onTap: pressOnSeeMore,
+            child: Row(
               children: [
                 Text(
-                  "See More Detail",
+                  isDescriptionExpanded ? "Voir moins" : "Voir plus de détails",
                   style: TextStyle(
-                      fontWeight: FontWeight.w600, color: kPrimaryColor),
+                    fontWeight: FontWeight.w600,
+                    color: kPrimaryColor,
+                  ),
                 ),
                 SizedBox(width: 5),
                 Icon(
-                  Icons.arrow_forward_ios,
+                  isDescriptionExpanded
+                      ? Icons.arrow_back_ios
+                      : Icons.arrow_forward_ios,
                   size: 12,
                   color: kPrimaryColor,
                 ),
               ],
             ),
           ),
-        )
+        ),
       ],
     );
   }

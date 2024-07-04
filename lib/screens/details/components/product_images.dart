@@ -1,7 +1,8 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 
 import '../../../constants.dart';
-import '../../../models/Product.dart';
+import '../../../models/produit.dart';
 
 class ProductImages extends StatefulWidget {
   const ProductImages({
@@ -17,46 +18,75 @@ class ProductImages extends StatefulWidget {
 
 class _ProductImagesState extends State<ProductImages> {
   int selectedImage = 0;
+
   @override
   Widget build(BuildContext context) {
+    bool hasPhotos =
+        widget.product.photos != null && widget.product.photos!.isNotEmpty;
     return Column(
       children: [
+        SizedBox(height: 20),
         SizedBox(
-          width: 238,
+          width: double.infinity,
           child: AspectRatio(
-            aspectRatio: 1,
-            child: Image.asset(widget.product.images[selectedImage]),
-          ),
-        ),
-        // SizedBox(height: 20),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            ...List.generate(
-              widget.product.images.length,
-              (index) => SmallProductImage(
-                isSelected: index == selectedImage,
-                press: () {
-                  setState(() {
-                    selectedImage = index;
-                  });
-                },
-                image: widget.product.images[index],
+            aspectRatio: 4 / 3, // Ratio d'aspect pour un cadre plus grand
+            child: CachedNetworkImage(
+              imageUrl:
+                  hasPhotos && widget.product.photos![selectedImage].isNotEmpty
+                      ? widget.product.photos![selectedImage]
+                      : 'https://i.pravatar.cc/150?u=a042581f4e29026704d',
+              fit: BoxFit
+                  .contain, // Utilisation de "contain" pour ajuster l'image à l'intérieur du cadre
+              progressIndicatorBuilder: (context, url, downloadProgress) =>
+                  Center(
+                child: CircularProgressIndicator(
+                  value: downloadProgress.progress,
+                ),
+              ),
+              errorWidget: (context, url, error) => Image.asset(
+                'assets/images/empty.png',
+                fit: BoxFit.contain,
               ),
             ),
-          ],
-        )
+          ),
+        ),
+        SizedBox(height: 5),
+        if (hasPhotos)
+          SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                ...List.generate(
+                  widget.product.photos!.length,
+                  (index) => Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 8),
+                    child: SmallProductImage(
+                      isSelected: index == selectedImage,
+                      press: () {
+                        setState(() {
+                          selectedImage = index;
+                        });
+                      },
+                      image: widget.product.photos![index],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
       ],
     );
   }
 }
 
 class SmallProductImage extends StatefulWidget {
-  const SmallProductImage(
-      {super.key,
-      required this.isSelected,
-      required this.press,
-      required this.image});
+  const SmallProductImage({
+    Key? key,
+    required this.isSelected,
+    required this.press,
+    required this.image,
+  }) : super(key: key);
 
   final bool isSelected;
   final VoidCallback press;
@@ -73,17 +103,25 @@ class _SmallProductImageState extends State<SmallProductImage> {
       onTap: widget.press,
       child: AnimatedContainer(
         duration: defaultDuration,
-        margin: const EdgeInsets.only(right: 16),
         padding: const EdgeInsets.all(8),
-        height: 48,
-        width: 48,
+        height: 80,
+        width: 80,
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(10),
           border: Border.all(
               color: kPrimaryColor.withOpacity(widget.isSelected ? 1 : 0)),
         ),
-        child: Image.asset(widget.image),
+        child: CachedNetworkImage(
+          imageUrl: widget.image,
+          fit: BoxFit.contain,
+          progressIndicatorBuilder: (context, url, downloadProgress) => Center(
+            child: CircularProgressIndicator(
+              value: downloadProgress.progress,
+            ),
+          ),
+          errorWidget: (context, url, error) => Icon(Icons.error),
+        ),
       ),
     );
   }

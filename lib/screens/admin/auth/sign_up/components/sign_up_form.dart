@@ -1,10 +1,10 @@
 import 'package:eshop/constants.dart';
-import 'package:eshop/models/User.dart';
+import 'package:eshop/models/user.dart';
 import 'package:eshop/models/api_response.dart';
 import 'package:eshop/screens/admin/auth/sign_in/sign_in_screen.dart';
 import 'package:eshop/screens/components/custom_surfix_icon.dart';
 import 'package:eshop/screens/components/form_error.dart';
-import 'package:eshop/services/user_service.dart';
+import 'package:eshop/services/user/user_service.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 

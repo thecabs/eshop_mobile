@@ -1,10 +1,9 @@
 import 'package:eshop/screens/components/product_card.dart';
-import 'package:eshop/screens/home/components/subcomponentpro/produit_page.dart';
-import 'package:eshop/test/body.dart';
+import 'package:eshop/screens/products/productList/produit_page.dart';
 import 'package:flutter/material.dart';
 
-import '../../../models/Produit.dart';
-import '../../detailso/details_screen.dart';
+import '../../../models/produit.dart';
+import '../../details/details_screen.dart';
 import 'section_title.dart';
 
 class PopularProducts extends StatelessWidget {
@@ -42,7 +41,7 @@ class PopularProducts extends StatelessWidget {
                         // onPress: () {},
                         onPress: () => Navigator.pushNamed(
                           context,
-                          DetailsScreeno.routeName,
+                          DetailsScreen.routeName,
                           arguments: ProductDetailsArguments(
                               product: demoProducts[index]),
                         ),
