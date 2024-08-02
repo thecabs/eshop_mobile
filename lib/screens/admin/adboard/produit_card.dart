@@ -73,7 +73,7 @@ class ProductCard extends StatelessWidget {
                 children: [
                   CachedNetworkImage(
                     imageUrl: product.photos!.isNotEmpty
-                        ? product.photos!.first
+                        ? baseimage + product.photos!.first
                         : 'https://i.pravatar.cc/150?u=a042581f4e29026704d',
                     fit: BoxFit.fill,
                     progressIndicatorBuilder:
@@ -123,28 +123,52 @@ class ProductCard extends StatelessWidget {
                           textAlign: TextAlign.center,
                           style: TextStyle(color: Colors.green),
                         ),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: (productDetails['qte_vendue'] ?? [])
-                              .map<Widget>((item) => Text(
-                                    '- Quantité vendue: ${item['quantity']} \n Date: ${formatDate(item['date'])}',
-                                    textAlign: TextAlign.center,
-                                  ))
-                              .toList(),
+                        Table(
+                          border: TableBorder.all(),
+                          children: [
+                            TableRow(
+                              children: [
+                                Text('Quantité', textAlign: TextAlign.center),
+                                Text('Date', textAlign: TextAlign.center),
+                              ],
+                            ),
+                            ...((productDetails['qte_vendue'] ?? [])
+                                .map<TableRow>((item) => TableRow(
+                                      children: [
+                                        Text('${item['quantity']}',
+                                            textAlign: TextAlign.center),
+                                        Text('${formatDate(item['date'])}',
+                                            textAlign: TextAlign.center),
+                                      ],
+                                    ))
+                                .toList()),
+                          ],
                         ),
                         Text(
                           'Total Quantité retirée: $totalWithdrawn',
                           textAlign: TextAlign.center,
                           style: TextStyle(color: Colors.orange),
                         ),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: (productDetails['qte_retiree'] ?? [])
-                              .map<Widget>((item) => Text(
-                                    ' - Quantité retirée: ${item['quantity']} \n   Date: ${formatDate(item['date'])}',
-                                    textAlign: TextAlign.center,
-                                  ))
-                              .toList(),
+                        Table(
+                          border: TableBorder.all(),
+                          children: [
+                            TableRow(
+                              children: [
+                                Text('Quantité', textAlign: TextAlign.center),
+                                Text('Date', textAlign: TextAlign.center),
+                              ],
+                            ),
+                            ...((productDetails['qte_retiree'] ?? [])
+                                .map<TableRow>((item) => TableRow(
+                                      children: [
+                                        Text('${item['quantity']}',
+                                            textAlign: TextAlign.center),
+                                        Text('${formatDate(item['date'])}',
+                                            textAlign: TextAlign.center),
+                                      ],
+                                    ))
+                                .toList()),
+                          ],
                         ),
                         SizedBox(height: 8),
                         Text(
@@ -160,14 +184,26 @@ class ProductCard extends StatelessWidget {
                     textAlign: TextAlign.center,
                     style: TextStyle(color: Colors.blue),
                   ),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: (productDetails['qte_ajoutee'] ?? [])
-                        .map<Widget>((item) => Text(
-                              '- Quantité ajoutée: ${item['quantity']} \n  Date: ${formatDate(item['date'])}',
-                              textAlign: TextAlign.center,
-                            ))
-                        .toList(),
+                  Table(
+                    border: TableBorder.all(),
+                    children: [
+                      TableRow(
+                        children: [
+                          Text('Quantité', textAlign: TextAlign.center),
+                          Text('Date', textAlign: TextAlign.center),
+                        ],
+                      ),
+                      ...((productDetails['qte_ajoutee'] ?? [])
+                          .map<TableRow>((item) => TableRow(
+                                children: [
+                                  Text('${item['quantity']}',
+                                      textAlign: TextAlign.center),
+                                  Text('${formatDate(item['date'])}',
+                                      textAlign: TextAlign.center),
+                                ],
+                              ))
+                          .toList()),
+                    ],
                   ),
                 ],
               ),
@@ -240,8 +276,8 @@ class ProductCard extends StatelessWidget {
                 ),
                 child: CachedNetworkImage(
                   imageUrl: product.photos!.isNotEmpty
-                      ? product.photos!.first
-                      : 'https://i.pravatar.cc/150?u=a042581f4e29026704d',
+                      ? baseimage + product.photos!.first
+                      : '',
                   fit: BoxFit.fill,
                   progressIndicatorBuilder: (context, url, downloadProgress) =>
                       Center(
@@ -259,7 +295,7 @@ class ProductCard extends StatelessWidget {
             const SizedBox(height: 8),
             Center(
               child: Text(
-                'CodePro: ${formatProductCode(product.codePro.toString())}',
+                '${formatProductCode(product.codePro.toString())}',
                 style: Theme.of(context).textTheme.bodyMedium,
                 maxLines: 1,
               ),

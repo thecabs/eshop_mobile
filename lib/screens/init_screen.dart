@@ -1,4 +1,6 @@
 import 'package:eshop/constants.dart';
+import 'package:eshop/screens/client_card/checking.dart';
+import 'package:eshop/screens/client_card/client_card_screen.dart';
 import 'package:eshop/screens/products/productList/produit_page.dart';
 import 'package:eshop/screens/home/home_screen.dart';
 import 'package:eshop/screens/panier/orderhistory.dart';
@@ -28,6 +30,7 @@ class _InitScreenState extends State<InitScreen> {
   final pages = [
     const HomeScreen(),
     ProductsPage(),
+    CheckingCardScreen(),
     const OrderHistoryScreen(),
   ];
 
@@ -75,6 +78,23 @@ class _InitScreenState extends State<InitScreen> {
               ),
             ),
             label: "Products",
+          ),
+          BottomNavigationBarItem(
+            icon: SvgPicture.asset(
+              "assets/icons/card.svg",
+              colorFilter: const ColorFilter.mode(
+                inActiveIconColor,
+                BlendMode.srcIn,
+              ),
+            ),
+            activeIcon: SvgPicture.asset(
+              "assets/icons/card.svg",
+              colorFilter: const ColorFilter.mode(
+                kPrimaryColor,
+                BlendMode.srcIn,
+              ),
+            ),
+            label: "Loyalty Card",
           ),
           BottomNavigationBarItem(
             icon: SvgPicture.asset(

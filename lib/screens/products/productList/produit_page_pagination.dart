@@ -1,8 +1,8 @@
-import 'dart:async';
-import 'package:eshop/screens/components/produit_card.dart';
 import 'package:eshop/screens/details/details_screen.dart';
+import 'package:eshop/screens/components/produit_card.dart';
 import 'package:eshop/services/user/fetchproduits.dart';
 import 'package:flutter/material.dart';
+//import 'package:google_fonts/google_fonts.dart';
 import 'package:shimmer/shimmer.dart';
 
 class ProductsPage extends StatefulWidget {
@@ -17,12 +17,7 @@ class ProductsPage extends StatefulWidget {
 }
 
 class _ProductsPageState extends State<ProductsPage> {
-  final ScrollController _scrollController = ScrollController();
-  List<dynamic> _products = [];
-  bool _isLoadingMore = false;
-  bool _isInitialLoading = true;
-  bool _hasError = false;
-  String _errorMessage = '';
+  late Future<Map<String, dynamic>> _futureProducts;
   int _currentPage = 1;
   int _totalPages = 1;
   TextEditingController _searchController = TextEditingController();
@@ -31,7 +26,6 @@ class _ProductsPageState extends State<ProductsPage> {
   late RangeValues _selectedPriceRange;
   TextEditingController _minPriceController = TextEditingController();
   TextEditingController _maxPriceController = TextEditingController();
-  Timer? _debounce;
 
   @override
   void initState() {
@@ -43,68 +37,21 @@ class _ProductsPageState extends State<ProductsPage> {
         widget.maxPrice?.toString() ?? _maxPrice.toString();
     _searchController.text = widget.searchQuery ?? '';
     _fetchProducts();
-
-    _scrollController.addListener(() {
-      if (_scrollController.position.pixels >=
-              _scrollController.position.maxScrollExtent &&
-          !_isLoadingMore) {
-        _loadMoreProducts();
-      }
-    });
-  }
-
-  @override
-  void dispose() {
-    _scrollController.dispose();
-    _searchController.dispose();
-    _debounce?.cancel();
-    super.dispose();
   }
 
   void _fetchProducts() {
     setState(() {
-      _isLoadingMore = true;
-      _isInitialLoading = _currentPage == 1;
-      _hasError = false;
+      _futureProducts = fetchProducts(
+        page: _currentPage,
+        search: _searchController.text,
+        prix1: double.tryParse(_minPriceController.text),
+        prix2: double.tryParse(_maxPriceController.text),
+      );
     });
-
-    fetchProducts(
-      page: _currentPage,
-      search: _searchController.text,
-      prix1: double.tryParse(_minPriceController.text),
-      prix2: double.tryParse(_maxPriceController.text),
-    ).then((response) {
-      setState(() {
-        _isLoadingMore = false;
-        _isInitialLoading = false;
-        _totalPages = response['last_page'];
-        if (_currentPage == 1) {
-          _products = response['items'];
-        } else {
-          _products.addAll(response['items']);
-        }
-      });
-    }).catchError((error) {
-      setState(() {
-        _isLoadingMore = false;
-        _isInitialLoading = false;
-        _hasError = true;
-        _errorMessage = 'Failed to load products. Please try again.';
-      });
-    });
-  }
-
-  void _loadMoreProducts() {
-    if (_currentPage < _totalPages) {
-      setState(() {
-        _currentPage++;
-        _fetchProducts();
-      });
-    }
   }
 
   Future<void> _refreshProducts() async {
-    _currentPage = 1;
+    _currentPage = _currentPage;
     _fetchProducts();
   }
 
@@ -210,14 +157,22 @@ class _ProductsPageState extends State<ProductsPage> {
     );
   }
 
-  void _onSearchChanged(String query) {
-    if (_debounce?.isActive ?? false) _debounce!.cancel();
-    _debounce = Timer(const Duration(milliseconds: 500), () {
+  void _loadNextPage() {
+    if (_currentPage < _totalPages) {
       setState(() {
-        _currentPage = 1;
+        _currentPage++;
       });
       _fetchProducts();
-    });
+    }
+  }
+
+  void _loadPreviousPage() {
+    if (_currentPage > 1) {
+      setState(() {
+        _currentPage--;
+      });
+      _fetchProducts();
+    }
   }
 
   @override
@@ -255,7 +210,7 @@ class _ProductsPageState extends State<ProductsPage> {
                       hintText: "Rechercher un produit",
                       prefixIcon: const Icon(Icons.search),
                     ),
-                    onChanged: _onSearchChanged,
+                    onChanged: (_) => _fetchProducts(),
                   ),
                 ),
                 IconButton(
@@ -269,49 +224,67 @@ class _ProductsPageState extends State<ProductsPage> {
           Expanded(
             child: RefreshIndicator(
               onRefresh: _refreshProducts,
-              child: _isInitialLoading
-                  ? _buildShimmerEffect()
-                  : _hasError
-                      ? Center(
-                          child: Text(
-                            _errorMessage,
-                            style: TextStyle(color: Colors.red, fontSize: 16),
-                          ),
-                        )
-                      : Scrollbar(
-                          controller: _scrollController,
-                          thumbVisibility: true,
-                          child: GridView.builder(
-                            controller: _scrollController,
-                            itemCount:
-                                _products.length + (_isLoadingMore ? 1 : 0),
-                            gridDelegate:
-                                const SliverGridDelegateWithMaxCrossAxisExtent(
-                              maxCrossAxisExtent: 200,
-                              childAspectRatio: 0.7,
-                              mainAxisSpacing: 20,
-                              crossAxisSpacing: 16,
-                            ),
-                            itemBuilder: (context, index) {
-                              if (index == _products.length) {
-                                return ProductCardShimmer(
-                                  width: 140,
-                                  aspectRatio: 1.02,
+              child: FutureBuilder<Map<String, dynamic>>(
+                future: _futureProducts,
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return _buildShimmerEffect(); // Affiche l'effet de shimmer pendant le chargement
+                  } else if (snapshot.hasError) {
+                    return Center(child: Text('Erreur: ${snapshot.error}'));
+                  } else if (!snapshot.hasData ||
+                      snapshot.data!['items'].isEmpty) {
+                    return Center(child: Text('Aucun produit trouvé'));
+                  } else {
+                    final products = snapshot.data!['items'];
+                    _totalPages = snapshot.data!['last_page'];
+                    return Column(
+                      children: [
+                        Expanded(
+                          child: Padding(
+                            padding: const EdgeInsets.all(16),
+                            child: GridView.builder(
+                              itemCount: products.length,
+                              gridDelegate:
+                                  const SliverGridDelegateWithMaxCrossAxisExtent(
+                                maxCrossAxisExtent: 200,
+                                childAspectRatio: 0.7,
+                                mainAxisSpacing: 20,
+                                crossAxisSpacing: 16,
+                              ),
+                              itemBuilder: (context, index) {
+                                final product = products[index];
+                                return ProductCard(
+                                  product: product,
+                                  onPress: () => Navigator.pushNamed(
+                                    context,
+                                    '/details', // Utilisez votre route de détails ici
+                                    arguments: ProductDetailsArguments(
+                                        product: product),
+                                  ),
                                 );
-                              }
-                              final product = _products[index];
-                              return ProductCard(
-                                product: product,
-                                onPress: () => Navigator.pushNamed(
-                                  context,
-                                  '/details',
-                                  arguments:
-                                      ProductDetailsArguments(product: product),
-                                ),
-                              );
-                            },
+                              },
+                            ),
                           ),
                         ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            IconButton(
+                              icon: Icon(Icons.arrow_back_ios),
+                              onPressed: _loadPreviousPage,
+                            ),
+                            Text('Page $_currentPage / $_totalPages'),
+                            IconButton(
+                              icon: Icon(Icons.arrow_forward_ios),
+                              onPressed: _loadNextPage,
+                            ),
+                          ],
+                        ),
+                      ],
+                    );
+                  }
+                },
+              ),
             ),
           ),
         ],
@@ -331,13 +304,44 @@ class _ProductsPageState extends State<ProductsPage> {
           mainAxisSpacing: 20,
           crossAxisSpacing: 16,
         ),
-        itemCount: 6,
         itemBuilder: (context, index) {
-          return ProductCardShimmer(
-            width: 140,
-            aspectRatio: 1.02,
+          return Container(
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                AspectRatio(
+                  aspectRatio: 1,
+                  child: Container(
+                    color: Colors.grey[300],
+                  ),
+                ),
+                SizedBox(height: 8),
+                Container(
+                  height: 10,
+                  width: double.infinity,
+                  color: Colors.grey[300],
+                ),
+                SizedBox(height: 4),
+                Container(
+                  height: 10,
+                  width: 100,
+                  color: Colors.grey[300],
+                ),
+                SizedBox(height: 4),
+                Container(
+                  height: 10,
+                  width: 150,
+                  color: Colors.grey[300],
+                ),
+              ],
+            ),
           );
         },
+        itemCount: 6, // Nombre de cartes de shimmer à afficher
       ),
     );
   }

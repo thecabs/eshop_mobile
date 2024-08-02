@@ -14,8 +14,6 @@ Future<bool> submitOrder({
   required int villeId,
   required BuildContext context,
 }) async {
-  final url = createGestURL;
-
   final orderData = {
     'montant': products.fold(
         0, (sum, item) => sum + item.prixAsDouble.toInt() * item.quantity),
@@ -35,11 +33,11 @@ Future<bool> submitOrder({
   };
 
   final response = await http.post(
-    Uri.parse(url),
+    Uri.parse(createCommandeURL),
     headers: {'Content-Type': 'application/json'},
     body: json.encode(orderData),
   );
-
+  print(response.body);
   if (response.statusCode == 201) {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? orderHistoryString = prefs.getString('orderHistory');

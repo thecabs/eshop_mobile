@@ -29,11 +29,11 @@ class HomeHeader extends StatelessWidget {
             press: () => Navigator.pushNamed(context, CartScreeno.routeName),
           ),
           const SizedBox(width: 8),
-          IconBtnWithCounter(
-            svgSrc: "assets/icons/User.svg",
-            // numOfitem: 0,
-            press: () => Navigator.pushNamed(context, SignInScreen.routeName),
-          ),
+          // IconBtnWithCounter(
+          //   svgSrc: "assets/icons/User.svg",
+          //   // numOfitem: 0,
+          //   press: () => Navigator.pushNamed(context, SignInScreen.routeName),
+          // ),
         ],
       ),
     );

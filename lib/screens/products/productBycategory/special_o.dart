@@ -1,7 +1,10 @@
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:eshop/constants.dart';
 import 'package:eshop/models/categories.dart';
+import 'package:eshop/screens/home/components/categories.dart';
 import 'package:eshop/screens/products/productBycategory/produit_by_cat_page.dart';
 import 'package:flutter/material.dart';
+import 'package:shimmer/shimmer.dart';
 
 class SpecialOfferCard extends StatelessWidget {
   const SpecialOfferCard({
@@ -10,7 +13,6 @@ class SpecialOfferCard extends StatelessWidget {
   }) : super(key: key);
 
   final Category category;
-  // final String url = "http://192.168.1.136:8000/";
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -47,21 +49,43 @@ class SpecialOfferCard extends StatelessWidget {
   }
 
   Widget buildImage() {
+    // Define a base URL for images
+
+    // Check if category.image is not null and not empty
+    final imageUrl = category.image != null && category.image!.isNotEmpty
+        ? (category.image!.startsWith('http')
+            ? category.image!
+            : baseimage + category.image!)
+        : null;
+
+    if (imageUrl == null) {
+      return Image.asset(
+        'assets/images/empty.png', // Fallback asset image
+        fit: BoxFit.cover,
+        width: double.infinity,
+        height: double.infinity,
+      );
+    }
+
     return CachedNetworkImage(
-      //imageUrl: url + '${category.image}' ?? '',
-      imageUrl: category.image ?? '',
+      imageUrl: imageUrl,
       fit: BoxFit.cover,
-      placeholder: (context, url) => Center(
-        child: CircularProgressIndicator(),
+      placeholder: (context, url) => Shimmer.fromColors(
+        baseColor: Colors.grey[300]!,
+        highlightColor: Colors.grey[100]!,
+        child: Container(
+          width: double.infinity,
+          height: double.infinity,
+          color: Colors.white,
+        ),
       ),
       errorWidget: (context, url, error) => Container(
         color: Colors.grey,
-        child: const Center(
-          child: Icon(
-            Icons.broken_image,
-            color: Colors.white,
-            size: 50,
-          ),
+        child: Image.asset(
+          'assets/images/empty.png', // Path to your default image
+          fit: BoxFit.cover,
+          width: double.infinity,
+          height: double.infinity,
         ),
       ),
     );

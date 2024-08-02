@@ -1,4 +1,4 @@
-import 'package:eshop/screens/products/components/produit_card.dart';
+import 'package:eshop/screens/components/produit_card.dart';
 import 'package:eshop/services/user/fetchproduits.dart';
 import 'package:flutter/material.dart';
 import 'package:eshop/models/produit.dart';

@@ -1,5 +1,9 @@
+import 'package:eshop/models/promo.dart';
 import 'package:eshop/screens/home/components/categories.dart';
+import 'package:eshop/screens/promo/promo_caroussel.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 
 import 'components/discount_banner.dart';
 import 'components/home_header.dart';
@@ -12,19 +16,21 @@ class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(
+    return Scaffold(
       body: SafeArea(
         child: SingleChildScrollView(
           padding: EdgeInsets.symmetric(vertical: 16),
           child: Column(
             children: [
               HomeHeader(),
+              SizedBox(height: 10),
               DiscountBanner(),
-              Categories(),
+              SizedBox(height: 20),
+              PromoCarousel(),
+              //Categories(),
               SpecialOffers(),
               SizedBox(height: 20),
               PopularProducts(),
-              SizedBox(height: 20),
             ],
           ),
         ),

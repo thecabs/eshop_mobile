@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:eshop/constants.dart';
 import 'package:eshop/models/api_response.dart';
+import 'package:eshop/models/client_carte.dart';
 import 'package:eshop/models/user.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
@@ -166,4 +167,42 @@ Future<ApiResponse> createGest(String nomGest, int typeGest, String login,
   }
 
   return apiResponse;
+}
+
+class ApiService {
+  Future<ApiResponse> fetchClient(String matr, String mobile) async {
+    ApiResponse apiResponse = ApiResponse();
+    try {
+      final response = await http.get(
+        Uri.parse('$clientcarteURL/$matr/$mobile'),
+        headers: {
+          'Accept': 'application/json',
+        },
+      );
+
+      print('Response body: ${response.body}'); // Log the response body
+
+      switch (response.statusCode) {
+        case 200:
+          try {
+            apiResponse.data = Client.fromJson(json.decode(response.body));
+          } catch (e) {
+            print('Error parsing JSON: $e');
+            apiResponse.error = 'Error parsing response';
+          }
+          break;
+        case 404:
+          apiResponse.error = 'Client not found';
+          break;
+        default:
+          apiResponse.error = 'Something went wrong';
+          break;
+      }
+    } catch (e) {
+      print('Error: $e');
+      apiResponse.error = 'Server error';
+    }
+
+    return apiResponse;
+  }
 }

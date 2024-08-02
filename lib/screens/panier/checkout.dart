@@ -1,8 +1,11 @@
+import 'dart:math';
+
 import 'package:eshop/helper/keyboard.dart';
 import 'package:eshop/models/produit.dart';
 import 'package:eshop/screens/components/custom_surfix_icon.dart';
 import 'package:eshop/screens/init_screen.dart';
 import 'package:eshop/screens/panier/cart_provider.dart';
+import 'package:eshop/screens/panier/components/client_carte_added.dart';
 import 'package:eshop/services/user/fetchville.dart';
 import 'package:eshop/services/user/order_service.dart';
 import 'package:flutter/material.dart';
@@ -97,6 +100,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
           loading = false;
         });
 
+        print(error);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Erreur lors de la passation de la commande')),
         );

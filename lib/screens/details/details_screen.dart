@@ -1,4 +1,5 @@
 import 'package:eshop/screens/panier/cart_provider.dart';
+import 'package:eshop/screens/panier/components/added_to_cart.dart';
 import 'package:flutter/material.dart';
 import '../../models/produit.dart';
 import 'components/product_description.dart';
@@ -12,10 +13,10 @@ class DetailsScreen extends StatefulWidget {
   const DetailsScreen({Key? key}) : super(key: key);
 
   @override
-  _DetailsScreenoState createState() => _DetailsScreenoState();
+  _DetailsScreenState createState() => _DetailsScreenState();
 }
 
-class _DetailsScreenoState extends State<DetailsScreen> {
+class _DetailsScreenState extends State<DetailsScreen> {
   String? selectedSize;
   String? selectedColor;
   bool isDescriptionExpanded = false;
@@ -29,7 +30,8 @@ class _DetailsScreenoState extends State<DetailsScreen> {
             selectedColor == null)) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-            content: Text("Veuillez sélectionner une taille et une couleur")),
+          content: Text("Veuillez sélectionner une taille et une couleur"),
+        ),
       );
       return;
     }
@@ -58,12 +60,19 @@ class _DetailsScreenoState extends State<DetailsScreen> {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text("${product.nomPro} a été ajouté au panier")),
     );
+    Navigator.pushReplacementNamed(context, AddedToCartMessageScreen.routeName);
   }
 
   @override
   Widget build(BuildContext context) {
-    final ProductDetailsArguments args =
-        ModalRoute.of(context)!.settings.arguments as ProductDetailsArguments;
+    final args = ModalRoute.of(context)!.settings.arguments;
+    if (args == null || args is! ProductDetailsArguments) {
+      return Scaffold(
+        body: Center(
+          child: Text("Invalid product details provided."),
+        ),
+      );
+    }
     final product = args.product;
 
     return Scaffold(
@@ -71,7 +80,7 @@ class _DetailsScreenoState extends State<DetailsScreen> {
       extendBodyBehindAppBar: true,
       backgroundColor: const Color(0xFFF5F6F9),
       appBar: buildAppBar(context),
-      body: buildBody(product),
+      body: SingleChildScrollView(child: buildBody(product)),
       bottomNavigationBar: buildBottomNavigationBar(product),
     );
   }
@@ -131,57 +140,55 @@ class _DetailsScreenoState extends State<DetailsScreen> {
   }
 
   Widget buildBody(Product product) {
-    return SingleChildScrollView(
-      child: Column(
-        children: [
-          ProductImages(product: product),
-          TopRoundedContainer(
-            color: Colors.white,
-            child: Column(
-              children: [
-                ProductDescription(
-                  product: product,
-                  isDescriptionExpanded: isDescriptionExpanded,
-                  pressOnSeeMore: () {
-                    setState(() {
-                      isDescriptionExpanded = !isDescriptionExpanded;
-                    });
-                  },
+    return Column(
+      children: [
+        ProductImages(product: product),
+        TopRoundedContainer(
+          color: Colors.white,
+          child: Column(
+            children: [
+              ProductDescription(
+                product: product,
+                isDescriptionExpanded: isDescriptionExpanded,
+                pressOnSeeMore: () {
+                  setState(() {
+                    isDescriptionExpanded = !isDescriptionExpanded;
+                  });
+                },
+              ),
+              TopRoundedContainer(
+                color: const Color(0xFFF6F7F9),
+                child: Column(
+                  children: [
+                    if (product.sizes != null && product.sizes!.isNotEmpty)
+                      buildAttributeSelector(
+                        title: "Taille",
+                        items: product.sizes!,
+                        selectedItem: selectedSize,
+                        onSelected: (size) {
+                          setState(() {
+                            selectedSize = size;
+                          });
+                        },
+                      ),
+                    if (product.colors != null && product.colors!.isNotEmpty)
+                      buildAttributeSelector(
+                        title: "Couleur",
+                        items: product.colors!,
+                        selectedItem: selectedColor,
+                        onSelected: (color) {
+                          setState(() {
+                            selectedColor = color;
+                          });
+                        },
+                      ),
+                  ],
                 ),
-                TopRoundedContainer(
-                  color: const Color(0xFFF6F7F9),
-                  child: Column(
-                    children: [
-                      if (product.sizes != null && product.sizes!.isNotEmpty)
-                        buildAttributeSelector(
-                          title: "Taille",
-                          items: product.sizes!,
-                          selectedItem: selectedSize,
-                          onSelected: (size) {
-                            setState(() {
-                              selectedSize = size;
-                            });
-                          },
-                        ),
-                      if (product.colors != null && product.colors!.isNotEmpty)
-                        buildAttributeSelector(
-                          title: "Couleur",
-                          items: product.colors!,
-                          selectedItem: selectedColor,
-                          onSelected: (color) {
-                            setState(() {
-                              selectedColor = color;
-                            });
-                          },
-                        ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
+              ),
+            ],
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 
@@ -191,11 +198,30 @@ class _DetailsScreenoState extends State<DetailsScreen> {
       child: SafeArea(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-          child: ElevatedButton(
-            onPressed: () {
-              addToCart(context, product);
-            },
-            child: const Text("Ajouter au panier"),
+          child: Tooltip(
+            message: product.actif == 1
+                ? 'Ajouter au panier'
+                : 'Ce produit est actuellement indisponible.',
+            child: ElevatedButton(
+              onPressed: product.actif == 1
+                  ? () {
+                      addToCart(context, product);
+                    }
+                  : () {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content:
+                              Text("Ce produit est actuellement indisponible."),
+                        ),
+                      );
+                    },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: product.actif == 1
+                    ? null
+                    : Colors.grey, // Grey out if disabled
+              ),
+              child: const Text("Ajouter au panier"),
+            ),
           ),
         ),
       ),

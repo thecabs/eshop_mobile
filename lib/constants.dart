@@ -26,6 +26,10 @@ final RegExp emailValidatorRegExp =
     RegExp(r"^[a-zA-Z0-9.]+@[a-zA-Z0-9]+\.[a-zA-Z]+");
 const String kEmailNullError = "Please Enter your login";
 const String kInvalidEmailError = "Please Enter Valid Login";
+const String kMatrNullError = "Please Enter your Matricule";
+
+const String kMobileNullError = "Please Enter your Phone number";
+
 const String kPassNullError = "Please Enter your password";
 const String kShortPassError = "Password is too short";
 const String kMatchPassError = "Passwords don't match";
@@ -47,8 +51,11 @@ OutlineInputBorder outlineInputBorder() {
   );
 }
 
-const base = '192.168.1.145:8000';
+const base = '192.168.1.120:8000';
 
+//const baseimage = "/";
+
+const baseimage = "http://192.168.1.120:8000/";
 //const baseURL = 'http://192.168.1.145:8000/api';
 const baseURL = 'http://' + base + '/api';
 const createGestURL = baseURL + '/createGest';
@@ -65,6 +72,7 @@ const produitListUrl = '/api/produitsList';
 const getQuantityURL = 'http://' + base + '/api/getquantity/';
 const getCategorienameURL = 'http://' + base + '/api/categories/';
 const listCategorieURL = baseURL + '/listCategories';
+const clientcarteURL = baseURL + '/client';
 
 // ----- Errors -----
 const serverError = 'Server Error';

@@ -23,20 +23,20 @@ class _ProductImagesState extends State<ProductImages> {
   Widget build(BuildContext context) {
     bool hasPhotos =
         widget.product.photos != null && widget.product.photos!.isNotEmpty;
+
     return Column(
       children: [
-        SizedBox(height: 20),
+        const SizedBox(height: 20),
         SizedBox(
           width: double.infinity,
           child: AspectRatio(
-            aspectRatio: 4 / 3, // Ratio d'aspect pour un cadre plus grand
+            aspectRatio: 4 / 3,
             child: CachedNetworkImage(
               imageUrl:
                   hasPhotos && widget.product.photos![selectedImage].isNotEmpty
-                      ? widget.product.photos![selectedImage]
+                      ? baseimage + widget.product.photos![selectedImage]
                       : 'https://i.pravatar.cc/150?u=a042581f4e29026704d',
-              fit: BoxFit
-                  .contain, // Utilisation de "contain" pour ajuster l'image à l'intérieur du cadre
+              fit: BoxFit.contain,
               progressIndicatorBuilder: (context, url, downloadProgress) =>
                   Center(
                 child: CircularProgressIndicator(
@@ -50,7 +50,7 @@ class _ProductImagesState extends State<ProductImages> {
             ),
           ),
         ),
-        SizedBox(height: 5),
+        const SizedBox(height: 5),
         if (hasPhotos)
           SingleChildScrollView(
             scrollDirection: Axis.horizontal,
@@ -63,12 +63,8 @@ class _ProductImagesState extends State<ProductImages> {
                     padding: const EdgeInsets.symmetric(horizontal: 8),
                     child: SmallProductImage(
                       isSelected: index == selectedImage,
-                      press: () {
-                        setState(() {
-                          selectedImage = index;
-                        });
-                      },
-                      image: widget.product.photos![index],
+                      press: () => _onImageSelected(index),
+                      image: baseimage + widget.product.photos![index],
                     ),
                   ),
                 ),
@@ -78,9 +74,15 @@ class _ProductImagesState extends State<ProductImages> {
       ],
     );
   }
+
+  void _onImageSelected(int index) {
+    setState(() {
+      selectedImage = index;
+    });
+  }
 }
 
-class SmallProductImage extends StatefulWidget {
+class SmallProductImage extends StatelessWidget {
   const SmallProductImage({
     Key? key,
     required this.isSelected,
@@ -93,14 +95,9 @@ class SmallProductImage extends StatefulWidget {
   final String image;
 
   @override
-  State<SmallProductImage> createState() => _SmallProductImageState();
-}
-
-class _SmallProductImageState extends State<SmallProductImage> {
-  @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: widget.press,
+      onTap: press,
       child: AnimatedContainer(
         duration: defaultDuration,
         padding: const EdgeInsets.all(8),
@@ -109,18 +106,18 @@ class _SmallProductImageState extends State<SmallProductImage> {
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(10),
-          border: Border.all(
-              color: kPrimaryColor.withOpacity(widget.isSelected ? 1 : 0)),
+          border:
+              Border.all(color: kPrimaryColor.withOpacity(isSelected ? 1 : 0)),
         ),
         child: CachedNetworkImage(
-          imageUrl: widget.image,
+          imageUrl: image,
           fit: BoxFit.contain,
           progressIndicatorBuilder: (context, url, downloadProgress) => Center(
             child: CircularProgressIndicator(
               value: downloadProgress.progress,
             ),
           ),
-          errorWidget: (context, url, error) => Icon(Icons.error),
+          errorWidget: (context, url, error) => const Icon(Icons.error),
         ),
       ),
     );
