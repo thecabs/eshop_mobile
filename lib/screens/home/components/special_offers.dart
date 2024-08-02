@@ -59,7 +59,7 @@ class ShimmerSpecialOfferCard extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.only(left: 20),
       child: SizedBox(
-        width: 242,
+        width: 243,
         height: 120,
         child: Shimmer.fromColors(
           baseColor: Colors.grey[300]!,
